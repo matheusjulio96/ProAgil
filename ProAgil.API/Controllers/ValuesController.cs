@@ -16,6 +16,7 @@ namespace ProAgil.API.Controllers
     {
         public readonly ProAgilContext _context;
 
+        // injeta contexto dentro da controller
         public ValuesController(ProAgilContext context)
         {
             _context = context;
@@ -28,6 +29,7 @@ namespace ProAgil.API.Controllers
             try
             {
                 var results = await _context.Eventos.ToListAsync();
+
                 return Ok(results);
             }
             catch (System.Exception)

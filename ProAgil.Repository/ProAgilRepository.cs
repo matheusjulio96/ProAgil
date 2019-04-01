@@ -12,10 +12,11 @@ namespace ProAgil.Repository
         public ProAgilRepository(ProAgilContext context)
         {
             _context = context;
+            _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         //GERAIS         
-        
+
         public void Add<T>(T entity) where T : class
         {
             _context.Add(entity);
@@ -33,48 +34,108 @@ namespace ProAgil.Repository
 
         public async Task<bool> SaveChangesAsync()
         {
-            return (await _context.SaveChangesAsync() > 0); 
+            return (await _context.SaveChangesAsync() > 0);
         }
-        
+
         //EVENTO
         public async Task<Evento[]> GetAllEventoAsync(bool includePalestrantes = false)
         {
+            //vai no banco e adiciona lotes e redes socials
             IQueryable<Evento> query = _context.Eventos
                 .Include(c => c.Lotes)
                 .Include(c => c.RedesSociais);
 
-                if (includePalestrantes){
-                    query = query.Include(p => p.PalestranteEventos)
-                        .ThenInclude(p => p.Palestrante);
-                }
+            //se quiser, inclui palestrantes
+            if (includePalestrantes)
+            {
+                query = query.Include(p => p.PalestranteEventos)
+                    .ThenInclude(p => p.Palestrante);
+            }
 
-                query = query.OrderByDescending(c => c.DataEvento);
+            query = query.AsNoTracking()
+                .OrderByDescending(c => c.DataEvento);
 
-                return await query.ToArrayAsync();
+            return await query.ToArrayAsync();
         }
-
-        public Task<Evento> GetAllEventoAsyncById(int EventoId, bool includePalestrantes)
+        public async Task<Evento[]> GetAllEventoAsyncByTema(string tema, bool includePalestrantes)
         {
-            throw new System.NotImplementedException();
+            //vai no banco e adiciona lotes e redes socials
+            IQueryable<Evento> query = _context.Eventos
+                .Include(c => c.Lotes)
+                .Include(c => c.RedesSociais);
+
+            //se quiser, inclui palestrantes
+            if (includePalestrantes)
+            {
+                query = query.Include(p => p.PalestranteEventos)
+                    .ThenInclude(p => p.Palestrante);
+            }
+
+            query = query.AsNoTracking()
+                .OrderByDescending(c => c.DataEvento)
+                .Where(c => c.Tema.ToLower().Contains(tema.ToLower()));
+
+            return await query.ToArrayAsync();
         }
-
-        public Task<Evento[]> GetAllEventoAsyncByTema(string tema, bool includePalestrantes)
+        public async Task<Evento> GetEventoAsyncById(int EventoId, bool includePalestrantes)
         {
-            throw new System.NotImplementedException();
+            //vai no banco e adiciona lotes e redes socials
+            IQueryable<Evento> query = _context.Eventos
+                .Include(c => c.Lotes)
+                .Include(c => c.RedesSociais);
+
+            //se quiser, inclui palestrantes
+            if (includePalestrantes)
+            {
+                query = query.Include(pe => pe.PalestranteEventos)
+                    .ThenInclude(p => p.Palestrante);
+            }
+
+            query = query.AsNoTracking()
+                .OrderByDescending(c => c.DataEvento)
+                .Where(c => c.Id == EventoId);
+
+            return await query.FirstOrDefaultAsync();
         }
 
 
         //PALESTRANTE
-        public Task<Evento[]> GetAllPalestrantesAsyncByName(bool includePalestrantes)
+        public async Task<Palestrante> GetPalestranteAsync(int PalestranteId, bool includeEventos = false)
         {
-            throw new System.NotImplementedException();
-        }
+            //vai no banco e adiciona lotes e redes socials
+            IQueryable<Palestrante> query = _context.Palestrantes
+                .Include(c => c.RedesSociais);
 
-        public Task<Evento> GetPalestranteAsync(int PalestranteId, bool includePalestrantes)
+            //se quiser, inclui palestrantes
+            if (includeEventos)
+            {
+                query = query.Include(pe => pe.PalestranteEventos)
+                    .ThenInclude(e => e.Evento);
+            }
+
+            query = query.AsNoTracking()
+                .OrderBy(p => p.Nome)
+                .Where(p => p.Id == PalestranteId);
+
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<Palestrante[]> GetAllPalestrantesAsyncByName(string name, bool includeEventos = false)
         {
-            throw new System.NotImplementedException();
+            //vai no banco e adiciona lotes e redes socials
+            IQueryable<Palestrante> query = _context.Palestrantes
+                .Include(c => c.RedesSociais);
+
+            //se quiser, inclui palestrantes
+            if (includeEventos)
+            {
+                query = query.Include(pe => pe.PalestranteEventos)
+                    .ThenInclude(e => e.Evento);
+            }
+
+            query = query.AsNoTracking()
+                .Where(p => p.Nome.ToLower().Contains(name.ToLower()));
+
+            return await query.ToArrayAsync();
         }
-
-
     }
 }
