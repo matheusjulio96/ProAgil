@@ -4,6 +4,7 @@ import { Evento } from '../_models/Evento';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { defineLocale, BsLocaleService, ptBrLocale } from 'ngx-bootstrap'; // datepicker
+import { eventNames } from 'cluster';
 
 defineLocale('pt-br', ptBrLocale);
 
@@ -43,12 +44,23 @@ export class EventosComponent implements OnInit {
       : this.eventos;
   }
 
-  editarEvento(evId: number, template: any) {
+  editarEvento(e: Evento, evId: number, template: any) {
     this.modoSalvar = 'put';
     this.openModal(template);
 
     // ao inves de receber o evento no click do botao editar, estou recebendo o id e buscando ele
     this.evento = this.eventos.find(evento => evento.id == evId);
+
+    let evnt: Evento;
+    this.eventoService.getEventoById(evId).subscribe((evt: Evento) => {
+      evnt = evt;
+    }
+    );
+
+    console.log(this.evento === e);
+    console.log(this.evento === evnt);
+    console.log(this.evento);
+    console.log(evnt);
 
     this.registerForm.patchValue(this.evento);
   }
