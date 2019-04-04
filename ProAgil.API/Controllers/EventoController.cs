@@ -30,7 +30,7 @@ namespace ProAgil.API.Controllers
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de Dados Falhou");
             }
-            
+
         }
 
         [HttpGet("{EventoId}")]
@@ -46,7 +46,7 @@ namespace ProAgil.API.Controllers
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de Dados Falhou");
             }
-            
+
         }
 
         [HttpGet("getByTema{tema}")]
@@ -62,7 +62,7 @@ namespace ProAgil.API.Controllers
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de Dados Falhou");
             }
-            
+
         }
 
         [HttpPost]
@@ -74,7 +74,8 @@ namespace ProAgil.API.Controllers
                 _repo.Add(model);
 
                 // salva a mudanca de estado
-                if (await _repo.SaveChangesAsync()){
+                if (await _repo.SaveChangesAsync())
+                {
                     return Created($"/api/evento/{model.Id}", model);
                 }
             }
@@ -86,7 +87,7 @@ namespace ProAgil.API.Controllers
             return BadRequest();
         }
 
-        [HttpPut]
+        [HttpPut("{EventoId}")]
         public async Task<IActionResult> Put(int EventoId, Evento model)
         {
             try
@@ -99,7 +100,8 @@ namespace ProAgil.API.Controllers
                 _repo.Update(model);
 
                 // salva a mudanca de estado
-                if (await _repo.SaveChangesAsync()){
+                if (await _repo.SaveChangesAsync())
+                {
                     return Created($"/api/evento/{model.Id}", model);
                 }
             }
@@ -107,7 +109,7 @@ namespace ProAgil.API.Controllers
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de Dados Falhou");
             }
-            
+
             return BadRequest();
         }
 
@@ -124,7 +126,8 @@ namespace ProAgil.API.Controllers
                 _repo.Delete(evento);
 
                 // salva a mudanca de estado
-                if (await _repo.SaveChangesAsync()){
+                if (await _repo.SaveChangesAsync())
+                {
                     return Ok();
                 }
             }
@@ -132,7 +135,7 @@ namespace ProAgil.API.Controllers
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de Dados Falhou");
             }
-            
+
             return BadRequest();
         }
     }
