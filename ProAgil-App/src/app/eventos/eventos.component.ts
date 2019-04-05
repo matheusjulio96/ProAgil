@@ -1,10 +1,9 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { EventoService } from '../_services/evento.service';
 import { Evento } from '../_models/Evento';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap';
+import { BsModalService } from 'ngx-bootstrap';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { defineLocale, BsLocaleService, ptBrLocale } from 'ngx-bootstrap'; // datepicker
-import { eventNames } from 'cluster';
 
 defineLocale('pt-br', ptBrLocale);
 
@@ -22,6 +21,7 @@ export class EventosComponent implements OnInit {
   mostrarImagem = false;
   registerForm: FormGroup;
   modoSalvar = 'post';
+  bodyDeletarEvento = '';
 
   pfiltroLista: string;
 
@@ -51,23 +51,29 @@ export class EventosComponent implements OnInit {
     // ao inves de receber o evento no click do botao editar, estou recebendo o id e buscando ele
     this.evento = this.eventos.find(evento => evento.id == evId);
 
-    let evnt: Evento;
-    this.eventoService.getEventoById(evId).subscribe((evt: Evento) => {
-      evnt = evt;
-    }
-    );
-
-    console.log(this.evento === e);
-    console.log(this.evento === evnt);
-    console.log(this.evento);
-    console.log(evnt);
-
     this.registerForm.patchValue(this.evento);
   }
 
   novoEvento(template: any) {
     this.modoSalvar = 'post';
     this.openModal(template);
+  }
+
+  excluirEvento(evento: Evento, template: any) {
+    template.show();
+    this.evento = evento;
+    this.bodyDeletarEvento = `Tem certeza que deseja excluir o Evento: ${evento.tema}, Código: ${evento.id}`;
+  }
+
+  confirmeDelete(template: any) {
+    this.eventoService.deleteEvento(this.evento.id).subscribe(
+      () => {
+          template.hide();
+          this.getEventos();
+        }, error => {
+          console.log(error);
+        }
+    );
   }
 
   openModal(template: any) {
@@ -121,7 +127,7 @@ export class EventosComponent implements OnInit {
           }
         );
       } else {
-        // concatena os valores do form com o id do this.evento
+        /* concatena os valores do form com o id do this.evento*/
         this.evento = Object.assign(
           { id: this.evento.id },
           this.registerForm.value
