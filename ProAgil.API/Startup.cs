@@ -15,6 +15,7 @@ using ProAgil.Repository;
 using ProAgil.Repository.Data;
 
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace ProAgil.API
 {
@@ -34,6 +35,7 @@ namespace ProAgil.API
                     x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
                 );
             services.AddScoped<IProAgilRepository, ProAgilRepository>();
+            services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddCors();
         }
